@@ -1,0 +1,35 @@
+
+---
+
+### **`aws_usage_report.sh`**
+```bash
+#!/bin/bash
+# AWS Usage Reporting Script
+
+# Output file name with date
+REPORT_FILE="aws_usage_report_$(date +%F).txt"
+
+# Location to save reports (logs folder)
+OUTPUT_DIR="$(dirname "$0")/logs"
+
+mkdir -p "$OUTPUT_DIR"
+
+echo "AWS Usage Report - $(date)" > "$OUTPUT_DIR/$REPORT_FILE"
+echo "--------------------------------------" >> "$OUTPUT_DIR/$REPORT_FILE"
+
+# Fetch EC2 Instances
+echo "EC2 Instances:" >> "$OUTPUT_DIR/$REPORT_FILE"
+aws ec2 describe-instances --query 'Reservations[*].Instances[*].{ID:InstanceId,Type:InstanceType,State:State.Name}' --output table >> "$OUTPUT_DIR/$REPORT_FILE"
+echo "" >> "$OUTPUT_DIR/$REPORT_FILE"
+
+# Fetch S3 Buckets
+echo "S3 Buckets:" >> "$OUTPUT_DIR/$REPORT_FILE"
+aws s3 ls >> "$OUTPUT_DIR/$REPORT_FILE"
+echo "" >> "$OUTPUT_DIR/$REPORT_FILE"
+
+# Fetch IAM Users
+echo "IAM Users:" >> "$OUTPUT_DIR/$REPORT_FILE"
+aws iam list-users --output table >> "$OUTPUT_DIR/$REPORT_FILE"
+echo "" >> "$OUTPUT_DIR/$REPORT_FILE"
+
+echo "Report saved to $OUTPUT_DIR/$REPORT_FILE"
